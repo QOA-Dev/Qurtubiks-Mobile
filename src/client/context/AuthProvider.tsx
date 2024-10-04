@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Text, View } from 'react-native'; 
 import * as SecureStore from 'expo-secure-store';
-import axios from 'axios';
-import * as AuthSession from 'expo-auth-session';
+import Auth0 from 'react-native-auth0'; 
 import { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE } from '@env';
 
-console.log("Domain", AUTH0_DOMAIN);
-console.log("Client", AUTH0_CLIENT_ID);
-console.log("Audience", AUTH0_AUDIENCE);
+const auth0 = new Auth0({
+  domain: AUTH0_DOMAIN,
+  clientId: AUTH0_CLIENT_ID,
+});
 
+// Define the context for authentication
 interface AuthContextProps {
   user: any;
   token: string | null;
@@ -29,84 +30,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to log in with credentials
   const loginWithCredentials = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`https://${AUTH0_DOMAIN}/oauth/token`, {
-        grant_type: 'password',
+      const response = await auth0.auth.passwordRealm({
         username: email,
-        password: password,
-        client_id: AUTH0_CLIENT_ID,
+        password,
+        realm: 'Username-Password-Authentication',
         audience: AUTH0_AUDIENCE,
+        scope: 'openid profile email',
       });
-  
-      const { access_token } = response.data;
-      setToken(access_token);
-      const userProfile = await fetchUserProfile(access_token);
-  
+
+      const { accessToken } = response;
+      setToken(accessToken);
+      const userProfile = await fetchUserProfile(accessToken);
+
       setUser(userProfile);
-  
-      await SecureStore.setItemAsync('userToken', access_token);
+      await SecureStore.setItemAsync('userToken', accessToken);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios Error:', error.response?.data || error.message);
-      } else {
-        console.error('Login failed:', error);
-      }
+      console.error('Login failed:', error);
       throw new Error('Login failed');
     }
   };
-  
 
+  // Function to log in with Google OAuth
   const loginGoogle = async () => {
     try {
-      const redirectUri = AuthSession.makeRedirectUri();
-      const authUrl = `https://${AUTH0_DOMAIN}/authorize?client_id=${AUTH0_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid profile email&connection=google-oauth2`;
+      const response = await auth0.webAuth.authorize({
+        scope: 'openid profile email',
+        audience: AUTH0_AUDIENCE,
+        connection: 'google-oauth2',
+      });
 
-      // I need to reconfigure this 
-      const result = await AuthSession.startAsync({ authUrl });
-      if (result.type === 'success') {
-        const { access_token } = result.params;
-        setToken(access_token);
-        const userProfile = await fetchUserProfile(access_token);
+      const { accessToken } = response;
+      setToken(accessToken);
+      const userProfile = await fetchUserProfile(accessToken);
 
-        // Directly setting PARENT_STUDENT.
-        setUser(userProfile);
-
-        // Store token in SecureStore
-        await SecureStore.setItemAsync('userToken', access_token);
-      } else {
-        throw new Error('Google login failed');
-      }
+      setUser(userProfile);
+      await SecureStore.setItemAsync('userToken', accessToken);
     } catch (error) {
       console.error('Google login failed:', error);
+      throw new Error('Google login failed');
+    }
+  };
+
+  // Function to fetch the user profile from Auth0
+  const fetchUserProfile = async (token: string) => {
+    try {
+      const response = await auth0.auth.userInfo({ token });
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
       throw error;
     }
   };
 
-  const fetchUserProfile = async (token: string) => {
-    const response = await axios.get(`https://${AUTH0_DOMAIN}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  };
-
+  // Function to log out the user and clear stored token
   const logout = async () => {
-    await SecureStore.deleteItemAsync('userToken');
-    setUser(null);
-    setToken(null);
+    try {
+      await SecureStore.deleteItemAsync('userToken');
+      setUser(null);
+      setToken(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
+  // Load stored token on app start to keep the user logged in
   useEffect(() => {
     const loadToken = async () => {
-      const storedToken = await SecureStore.getItemAsync('userToken');
-      if (storedToken) {
-        const userProfile = await fetchUserProfile(storedToken);
-        setUser(userProfile);
-        setToken(storedToken);
+      try {
+        const storedToken = await SecureStore.getItemAsync('userToken');
+        if (storedToken) {
+          const userProfile = await fetchUserProfile(storedToken);
+          setUser(userProfile);
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.error('Failed to load token:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadToken();
   }, []);
