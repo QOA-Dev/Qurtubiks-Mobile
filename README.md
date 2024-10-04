@@ -24,4 +24,4 @@ Ensure you have the following installed:
 
 - npm start
 
-4. Use Expo Go to scan the QR code displayed in your terminal or browser to run the app on your device.
+4. Use Expo Go to scan the QR code displayed in your terminal or browser to run the app on your device
