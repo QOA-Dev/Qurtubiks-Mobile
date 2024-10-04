@@ -34,6 +34,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onItemClick }) => {
               <Icon name="th-large" size={20} color="#cdd0dc" />
               <Text style={[styles.itemText, { color: '#cdd0dc' }]}>Dashboard</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.item} onPress={() => handleNavigation('News')}>
+              <Icon name="star" size={20} color="#cdd0dc" />
+              <Text style={[styles.itemText, { color: '#cdd0dc' }]}>To do</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.item} onPress={() => handleNavigation('Applications')}>
               <Icon name="paper-plane" size={20} color="#cdd0dc" />
               <Text style={[styles.itemText, { color: '#cdd0dc' }]}>Applications</Text>
