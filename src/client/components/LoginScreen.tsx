@@ -14,6 +14,7 @@ const LoginScreen = () => {
     try {
       setError(null); 
       await loginWithCredentials(email, password);
+      // @ts-ignore
       navigation.navigate('Home'); 
     } catch (err) {
       setError('Login failed. Please check your credentials.');
@@ -33,7 +34,7 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor="#000"
+        placeholderTextColor="#000000"
       />
       <TextInput
         style={styles.input}
@@ -41,7 +42,7 @@ const LoginScreen = () => {
         value={password}
         secureTextEntry
         onChangeText={setPassword}
-        placeholderTextColor="#000"
+        placeholderTextColor="#000000"
       />
       {error && <Text style={styles.error}>{error}</Text>}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
   input: {
     width: '90%',
     height: 50,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#D9D9D9',
     borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   button: {
-    backgroundColor: '#D3836A', 
+    backgroundColor: '#EC7F55', 
     borderRadius: 25,
     width: 150,
     height: 50,

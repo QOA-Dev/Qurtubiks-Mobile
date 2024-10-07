@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await auth0.auth.passwordRealm({
         username: email,
-        password,
+        password: password,
         realm: 'Username-Password-Authentication',
         audience: AUTH0_AUDIENCE,
         scope: 'openid profile email',

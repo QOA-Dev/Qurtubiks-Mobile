@@ -26,18 +26,10 @@ const AppContent = ({
   isAccountManagementVisible,
 }) => {
   const { user } = useAuth(); 
+  console.log("user", user);
 
   return (
     <View style={styles.container}>
-      {user && (
-        <Navbar
-          onBurgerClick={toggleSidebar}
-          toggleNotifications={toggleNotifications}
-          toggleAccountManagement={toggleAccountManagement}
-          isNotificationsVisible={isNotificationsVisible}
-          isAccountManagementVisible={isAccountManagementVisible}
-        />
-      )}
       <Stack.Navigator initialRouteName={user ? "Home" : "Login"}> 
         {!user ? (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -49,9 +41,19 @@ const AppContent = ({
             <Stack.Screen name="News" component={NewsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Fees" component={FeesScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Chats" component={ChatsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Accounts" component={AccountManagement} options={{ headerShown: false }} />
           </>
         )}
       </Stack.Navigator>
+      {user && (
+        <Navbar
+          onBurgerClick={toggleSidebar}
+          toggleNotifications={toggleNotifications}
+          toggleAccountManagement={toggleAccountManagement}
+          isNotificationsVisible={isNotificationsVisible}
+          isAccountManagementVisible={isAccountManagementVisible}
+        />
+      )}
     </View>
   );
 };

@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 5,
     backgroundColor: '#F9FAFC',
+    paddingTop: 70,
   },
   mainContent: {
     width: '100%',
