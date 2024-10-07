@@ -4,12 +4,13 @@ import * as SecureStore from 'expo-secure-store';
 import Auth0 from 'react-native-auth0'; 
 import { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE } from '@env';
 
+console.log(AUTH0_DOMAIN)
+
 const auth0 = new Auth0({
   domain: AUTH0_DOMAIN,
   clientId: AUTH0_CLIENT_ID,
 });
 
-// Define the context for authentication
 interface AuthContextProps {
   user: any;
   token: string | null;

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useAuth } from '../context/AuthProvider';
-import { useNavigation } from '@react-navigation/native'; // Use the navigation hook
+import { useNavigation } from '@react-navigation/native'; 
 
 const LoginScreen = () => {
-  const { loginWithCredentials } = useAuth(); // Access login function from AuthProvider
+  const { loginWithCredentials } = useAuth(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const navigation = useNavigation(); // Get the navigation object
+  const navigation = useNavigation(); 
 
   const handleLogin = async () => {
     try {
@@ -22,6 +22,10 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../../../assets/login-logo.png')}
+        style={styles.logo}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -29,6 +33,7 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        placeholderTextColor="#000"
       />
       <TextInput
         style={styles.input}
@@ -36,9 +41,12 @@ const LoginScreen = () => {
         value={password}
         secureTextEntry
         onChangeText={setPassword}
+        placeholderTextColor="#000"
       />
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>SUBMIT</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -47,18 +55,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 16,
+    backgroundColor: '#fff',
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 150,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    width: '90%',
+    height: 50,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: '#000',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, 
   },
   error: {
     color: 'red',
     marginBottom: 12,
+    fontSize: 14,
+  },
+  button: {
+    backgroundColor: '#D3836A', 
+    borderRadius: 25,
+    width: 150,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
