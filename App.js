@@ -26,7 +26,6 @@ const AppContent = ({
   isAccountManagementVisible,
 }) => {
   const { user } = useAuth(); 
-  console.log("user", user);
 
   return (
     <View style={styles.container}>

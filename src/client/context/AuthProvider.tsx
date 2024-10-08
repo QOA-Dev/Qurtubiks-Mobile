@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userProfile = await fetchUserProfile(accessToken);
 
       setUser(userProfile);
-      await SecureStore.setItemAsync('userToken', accessToken);
+      await SecureStore.setItemAsync('userToken', accessToken);      
     } catch (error) {
       console.error('Login failed:', error);
       throw new Error('Login failed');

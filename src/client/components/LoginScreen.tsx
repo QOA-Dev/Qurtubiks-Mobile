@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthProvider';
 import { useNavigation } from '@react-navigation/native'; 
 
 const LoginScreen = () => {
-  const { loginWithCredentials } = useAuth(); 
+  const { loginWithCredentials, loginGoogle } = useAuth(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +21,29 @@ const LoginScreen = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setError(null);
+      await loginGoogle(); 
+      // @ts-ignore
+      navigation.navigate('Home'); 
+    } catch (err) {
+      setError('Google login failed. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
         source={require('../../../assets/login-logo.png')}
         style={styles.logo}
       />
+      
+      <Text style={styles.welcomeText}>Welcome back!</Text>
+      <Text style={styles.subText}>
+        Don’t have an account? <Text style={styles.createAccount}>Create an account</Text>
+      </Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -34,7 +51,7 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor="#000000"
+        placeholderTextColor="#7B7B7B"
       />
       <TextInput
         style={styles.input}
@@ -42,12 +59,25 @@ const LoginScreen = () => {
         value={password}
         secureTextEntry
         onChangeText={setPassword}
-        placeholderTextColor="#000000"
+        placeholderTextColor="#7B7B7B"
       />
+      <Text style={styles.forgotPassword}>Forgot password?</Text>
       {error && <Text style={styles.error}>{error}</Text>}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>SUBMIT</Text>
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+        <Image
+        source={require('../../../assets/google.png')}
+        style={styles.googleIcon}
+      />
+        <Text style={styles.googleButtonText}>Continue with Google</Text>
+      </TouchableOpacity>
+      <Text style={styles.termsText}>
+        By signing up for Qurtuba Online Academy, you agree to our{' '}
+        <Text style={styles.linkText}>Terms and Conditions</Text> and{' '}
+        <Text style={styles.linkText}>Privacy Policy</Text>
+      </Text>
     </View>
   );
 };
@@ -61,43 +91,81 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 150,
+    width: 80,
+    height: 80,
+    marginBottom: 30,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subText: {
+    color: '#7B7B7B',
+    marginBottom: 20,
+  },
+  createAccount: {
+    color: '#EC7F55',
   },
   input: {
     width: '90%',
     height: 50,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: '#F5F5F5',
     borderRadius: 10,
     paddingHorizontal: 10,
     fontSize: 16,
     color: '#000',
+    marginBottom: 15,
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    color: '#7B7B7B',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2, 
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: '#EC7F55',
+    borderRadius: 25,
+    width: '90%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F6F6F6',
+    borderRadius: 25,
+    width: '90%',
+    height: 50,
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  googleIcon: {
+    marginRight: 10,
+  },
+  googleButtonText: {
+    color: '#000',
+    fontSize: 18,
   },
   error: {
     color: 'red',
     marginBottom: 12,
     fontSize: 14,
   },
-  button: {
-    backgroundColor: '#EC7F55', 
-    borderRadius: 25,
-    width: 150,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
+  termsText: {
+    textAlign: 'center',
+    color: '#7B7B7B',
+    fontSize: 12,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  linkText: {
+    color: '#EC7F55',
   },
 });
 
