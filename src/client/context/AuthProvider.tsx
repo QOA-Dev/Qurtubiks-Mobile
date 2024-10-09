@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Function to log in with Google OAuth
+  // Function to log in with Google OAuth currently doesn't work on Expo Go
   const loginGoogle = async () => {
     try {
       const response = await auth0.webAuth.authorize({
