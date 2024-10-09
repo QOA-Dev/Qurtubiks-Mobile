@@ -1,44 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
 interface NavbarProps {
   onBurgerClick: () => void;
+  isOpen: boolean; 
   toggleNotifications: () => void;
   toggleAccountManagement: () => void;
-  isNotificationsVisible: boolean;
-  isAccountManagementVisible: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
   onBurgerClick,
+  isOpen, 
   toggleNotifications,
   toggleAccountManagement,
-  isNotificationsVisible,
-  isAccountManagementVisible,
 }) => {
   const navigation = useNavigation();
 
   const handleChatsNavigation = () => {
-    // Navigate to the ChatsScreen
+    // @ts-ignore
     navigation.navigate('Chats');
   };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onBurgerClick} style={styles.burger}>
-        <Icon name="bars" size={24} color="grey" />
+        <Icon name={isOpen ? 'close' : 'bars'} size={28} color="#BDBDBD" /> 
       </TouchableOpacity>
+
       <View style={styles.headerIcons}>
         <TouchableOpacity style={styles.icon} onPress={toggleNotifications}>
-          <Icon name="bell" size={20} color="grey" />
+          <Icon name="bell" size={28} color="#BDBDBD" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.icon} onPress={handleChatsNavigation}>
-          <Icon name="envelope" size={20} color="grey" />
+          <Icon name="comment" size={28} color="#BDBDBD" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.icon} onPress={toggleAccountManagement}>
-          <Icon name="user-circle" size={20} color="grey" />
+          <Icon name="user" size={28} color="#BDBDBD" />
         </TouchableOpacity>
       </View>
     </View>
@@ -48,22 +49,32 @@ const Navbar: React.FC<NavbarProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 35,
-    paddingBottom: 10,
-    backgroundColor: '#fff',
-    borderBottomWidth: 0,
+    paddingVertical: 10,
+    backgroundColor: '#F9F9F9',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    elevation: 5, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    zIndex: 1, 
   },
   burger: {
-    marginRight: 20,
+    padding: 10,
   },
   headerIcons: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '78%', 
   },
   icon: {
-    marginLeft: 20,
+    flex: 1,
+    alignItems: 'center',
   },
 });
 

@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["react-native-vector-icons"]
+    "types": ["react-native-vector-icons", "jest", "node"]
   },
   "extends": "expo/tsconfig.base"
 }

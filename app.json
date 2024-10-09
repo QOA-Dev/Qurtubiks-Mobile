@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "QurtubiksMobile",
-    "slug": "QurtubiksMobile",
+    "slug": "qurtuba-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "image": "./assets/LoadingPage.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -18,10 +18,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.imtiyaazh.qurtubamobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cf0c6c78-3a9a-4a21-b6bb-bf693a072aff"
+      }
+    },
+    "owner": "imtiyaazh"
   }
 }

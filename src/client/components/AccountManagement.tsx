@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Image } from 'react-native';
+import { useAuth } from '../context/AuthProvider'; 
 
 interface AccountManagementProps {
   isVisible: boolean;
@@ -8,33 +8,49 @@ interface AccountManagementProps {
 }
 
 const AccountManagement: React.FC<AccountManagementProps> = ({ isVisible, onClose }) => {
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onClose(); 
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   if (!isVisible) {
     return null;
   }
+
+  const getInitials = (name: string) => {
+    const initials = name.split(' ').map(word => word[0]).join('').toUpperCase();
+    return initials;
+  };
 
   return (
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback>
           <View style={styles.container}>
-            <View style={styles.notificationBox}>
-              <View style={styles.headerContainer}>
-                <Text style={styles.header}>Jameel Kekana</Text>
-                <TouchableOpacity onPress={onClose}>
-                  <Icon name="close" size={20} color="gray" />
-                </TouchableOpacity>
+            <Text style={styles.header}>My Profile</Text>
+
+            <View style={styles.profileContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{getInitials(user?.name || 'NN')}</Text>
               </View>
-              <Text style={styles.userEmail}>Jameelk@qurtubaonline.co.za</Text>
-              <View style={styles.horizontalLine} />
-              <TouchableOpacity style={styles.accountItem}>
-                <Icon name="user" size={20} color="grey" />
-                <Text style={styles.accountText}>Account Management</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.accountItem}>
-                <Icon name="sign-out" size={20} color="grey" />
-                <Text style={styles.accountText}>Logout</Text>
-              </TouchableOpacity>
+
+              <View style={styles.profileDetails}>
+                <Text style={styles.profileName}>{user?.name}</Text>
+                <Text style={styles.profileEmail}>{user?.email}</Text>
+              </View>
             </View>
+
+            <View style={styles.horizontalLine} />
+
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </View>
@@ -50,54 +66,71 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 999,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', 
   },
   container: {
     position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 250,
+    top: '20%',
+    left: '5%',
+    right: '5%',
     backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 5,
-    zIndex: 1000,
     borderRadius: 10,
-  },
-  notificationBox: {
     padding: 20,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    elevation: 5,
   },
   header: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#555555',
+    color: '#000',
+    marginBottom: 20,
   },
-  userEmail: {
-    fontSize: 14,
-    color: 'gray',
-    marginTop: 10,
-  },
-  horizontalLine: {
-    borderBottomColor: 'lightgray',
-    borderBottomWidth: 1,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  accountItem: {
+  profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
-  accountText: {
-    marginLeft: 10,
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#BDBDBD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  avatarText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  profileDetails: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: 'gray',
+    marginTop: 5,
+  },
+  horizontalLine: {
+    borderBottomColor: '#E0E0E0',
+    borderBottomWidth: 1,
+    marginBottom: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#EC7F55',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  logoutText: {
     fontSize: 16,
-    color: 'black',
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
