@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, TextInput, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as Notifications from 'expo-notifications';
 import { getAllNews } from '../services/newsService'; 
 
 interface NewsItem {
@@ -23,7 +24,23 @@ const NewsScreen = () => {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [lastNewsId, setLastNewsId] = useState<number | null>(null);
+
+  const notificationListener = useRef<Notifications.Subscription | null>(null);
+  const responseListener = useRef<Notifications.Subscription | null>(null);
+
+  const sendPushNotification = async (title: string, body: string) => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: title,
+        body: body,
+        sound: true,
+      },
+      trigger: null,
+    });
+  };
+
+  // Fetch news data
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true); 
@@ -31,6 +48,14 @@ const NewsScreen = () => {
         const data = await getAllNews(0, 6);
         setAllNewsData(data.data); 
         setNewsData(data.data);
+        if (data.data.length > 0) {
+          const latestNewsId = data.data[0].id;
+          if (lastNewsId !== null && latestNewsId !== lastNewsId) {
+            await sendPushNotification('News Available!', data.data[0].title);
+          }
+          setLastNewsId(latestNewsId); 
+        }
+
       } catch (error) {
         console.error('Failed to fetch news:', error);
       } finally {
@@ -39,7 +64,24 @@ const NewsScreen = () => {
     };
 
     fetchNews();
-  }, []);
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification Received:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification Response:', response);
+    });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, [lastNewsId]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

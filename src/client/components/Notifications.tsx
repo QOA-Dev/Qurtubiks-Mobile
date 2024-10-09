@@ -7,7 +7,7 @@ interface NotificationsProps {
   onClose: () => void;
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ isVisible, onClose }) => {
+const NotificationsView: React.FC<NotificationsProps> = ({ isVisible, onClose }) => {
   if (!isVisible) {
     return null;
   }
@@ -76,4 +76,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Notifications;
+export default NotificationsView;

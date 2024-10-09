@@ -1,8 +1,9 @@
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as Notifications from 'expo-notifications';
 import { AuthProvider, useAuth } from './src/client/context/AuthProvider';
 import Sidebar from './src/client/components/Sidebar';
 import HomeScreen from './src/client/components/HomeScreen';
@@ -12,9 +13,9 @@ import NewsScreen from './src/client/components/NewsScreen';
 import FeesScreen from './src/client/components/FeesScreen';
 import ChatsScreen from './src/client/components/ChatsScreen';
 import LoginScreen from './src/client/components/LoginScreen';
-import Navbar from './src/client/components/Navbar'; 
-import Notifications from './src/client/components/Notifications'; 
-import AccountManagement from './src/client/components/AccountManagement'; 
+import Navbar from './src/client/components/Navbar';
+import NotificationsView from './src/client/components/Notifications';
+import AccountManagement from './src/client/components/AccountManagement';
 
 const Stack = createStackNavigator();
 
@@ -25,11 +26,11 @@ const AppContent = ({
   isNotificationsVisible,
   isAccountManagementVisible,
 }) => {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   return (
     <View style={styles.container}>
-      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}> 
+      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
         {!user ? (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         ) : (
@@ -59,17 +60,15 @@ const AppContent = ({
 
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [view, setView] = useState('Dashboard');
   const [isNotificationsVisible, setIsNotificationsVisible] = useState(false);
   const [isAccountManagementVisible, setIsAccountManagementVisible] = useState(false);
 
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const notificationListener = useRef(null);
+  const responseListener = useRef(null);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleItemClick = (item) => {
-    setView(item);
-    setIsSidebarOpen(false);
   };
 
   const toggleNotifications = () => {
@@ -80,18 +79,66 @@ export default function App() {
     setIsAccountManagementVisible(!isAccountManagementVisible);
   };
 
+  // Push notifications, registrations
+  useEffect(() => {
+    const registerForPushNotificationsAsync = async () => {
+      let token;
+
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
+      const { status } = await Notifications.requestPermissionsAsync(); 
+      if (status !== 'granted') {
+        alert('Failed to get push token for push notifications!');
+        return;
+      }
+
+      // I created an expo account, I will add to the README
+      const projectId = 'cf0c6c78-3a9a-4a21-b6bb-bf693a072aff'; 
+
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+      setExpoPushToken(token);
+      console.log('Expo Push Token:', token);
+    };
+
+    registerForPushNotificationsAsync();
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification Received:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification Response:', response);
+    });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
+
   return (
-    <AuthProvider> 
+    <AuthProvider>
       <NavigationContainer>
-        <AppContent 
+        <AppContent
           toggleSidebar={toggleSidebar}
           toggleNotifications={toggleNotifications}
           toggleAccountManagement={toggleAccountManagement}
           isNotificationsVisible={isNotificationsVisible}
           isAccountManagementVisible={isAccountManagementVisible}
-        /> 
-        <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} onItemClick={handleItemClick} />
-        <Notifications isVisible={isNotificationsVisible} onClose={toggleNotifications} />
+        />
+        <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
+        <NotificationsView isVisible={isNotificationsVisible} onClose={toggleNotifications} />
         <AccountManagement isVisible={isAccountManagementVisible} onClose={toggleAccountManagement} />
       </NavigationContainer>
     </AuthProvider>
